@@ -20,7 +20,7 @@ If you're coming from Java/Spring Boot world and need to share encrypted configu
 - ✅ **Multiple encryption algorithms** - From legacy Jasypt to modern AES-256-GCM
 - ✅ **Config file loaders** - Load .env, YAML, JSON with auto-decryption
 - ✅ **CLI tool included** - Encrypt/decrypt from command line
-- ✅ **Cross-platform** - Works with GoCrypt (Go) and Java Jasypt
+- ✅ **Cross-platform** - Works with GoCrypt (Go), RustCrypt (Rust) and Java Jasypt
 
 ---
 
@@ -108,6 +108,7 @@ enc = JasyptStrongEncryptor(password)
 │ Encryptor              → Java Jasypt            ❌ NO           │
 │ JasyptEncryptor        → Java Jasypt            ✅ YES          │
 │ GoCrypt JasyptEnc      → JasyptEncryptor        ✅ YES          │
+│ RustCrypt JasyptEnc    → JasyptEncryptor        ✅ YES          │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -369,6 +370,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🔗 Related Projects
 
 - [GoCrypt](https://github.com/farizfadian/gocrypt) - Jasypt-like encryption for Go
+- [NodeCrypt](https://github.com/farizfadian/nodecrypt) - Jasypt-like encryption for Node.js
+- [PHPCrypt](https://github.com/farizfadian/phpcrypt) - Jasypt-like encryption for PHP
+- [RustCrypt](https://github.com/farizfadian/rustcrypt) - Jasypt-like encryption for Rust
 - [Jasypt](http://www.jasypt.org/) - Original Java library
 
 ---
