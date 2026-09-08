@@ -14,7 +14,13 @@ Repository  : github.com/farizfadian/pycrypt
 Language    : Python 3.8+
 License     : MIT
 Package     : pycrypt-jasypt (PyPI)
+Dependencies: pycryptodome>=3.19.0
 Created     : December 2024
+Status      : ✅ PUBLISHED & TESTED (v1.0.0)
+Install     : pip install pycrypt-jasypt
+Registry    : PyPI (pypi.org/project/pycrypt-jasypt/)
+Release     : Auto-publish via GitHub Actions on tag push (v*)
+Token       : PYPI_API_TOKEN in GitHub Secrets (✅ Active, no expiry)
 ```
 
 ---
@@ -107,6 +113,36 @@ config = loader.load_env_file(".env")
 ## 📦 Dependencies
 
 - `pycryptodome>=3.19.0`
+
+---
+
+---
+
+## 📦 Publish & Release Status
+
+| Item | Status |
+|------|--------|
+| Published | ✅ v1.0.0 on PyPI |
+| Install | `pip install pycrypt-jasypt` |
+| Import | `from pycrypt_jasypt import JasyptEncryptor` (underscore!) |
+| CI | ✅ GitHub Actions (multi-OS, multi-Python version) |
+| Release | ✅ Auto-publish on `git tag v*` + `git push origin v*` |
+| Token | PYPI_API_TOKEN in GitHub Secrets (✅ Active, no expiry) |
+| Cross-language tested | ✅ Encrypt in Python → Decrypt in Go/Node/PHP/Java |
+
+### How to release a new version:
+```bash
+git tag v1.x.x
+git push origin v1.x.x
+# GitHub Actions auto-publishes to PyPI
+```
+
+---
+
+## 📋 Full Context Reference
+
+For complete cross-language context, see:
+`C:\Users\Fariz Fadian\Documents\Fariz\PRIVATE\JASYPT-MULTI-LANGUAGE-CONTEXT.md`
 
 ---
 
