@@ -25,7 +25,7 @@ from .jasypt_compat import JasyptEncryptor, JasyptStrongEncryptor
 from .config_loader import ConfigLoader
 from .utils import is_encrypted
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 __author__ = "Fariz Fadian"
 __email__ = "farislash@gmail.com"
 

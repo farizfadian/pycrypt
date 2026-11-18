@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.0.1] - 2026-11-19
+
+### Fixed
+- **`Encryptor` (AES-256-GCM, the CLI default) now uses a 12-byte GCM nonce**, the
+  same as GoCrypt, NodeCrypt, RustCrypt and PHPCrypt. PyCrypt 1.0.0 relied on
+  pycryptodome's default 16-byte nonce, so `ENC(...)` values from the other
+  family members failed with `Decryption failed: MAC check failed`, and values
+  written by PyCrypt could not be read by them.
+- Wire format (unchanged for the rest of the family):
+  `base64(salt(16) || nonce(12) || ciphertext || tag(16))`, key from
+  PBKDF2-HMAC-SHA256 with 10000 iterations.
+
+### Compatibility
+- Values written by PyCrypt 1.0.0 still decrypt in 1.0.1 (the 16-byte-nonce
+  layout is tried as a fallback). Other family members never could read them;
+  re-encrypt with 1.0.1 to share them across languages.
+- Values written by 1.0.1 cannot be read by PyCrypt 1.0.0. Upgrade every
+  Python reader before you write new values.
+- `JasyptEncryptor` and `JasyptStrongEncryptor` are unchanged.
+
+### Added
+- Cross-language tests that pin `Encryptor` against GoCrypt and NodeCrypt
+  values (`tests/test_cross_language.py`).
+
+---
+
 ## [1.0.0] - 2024-12-28
 
 ### 🎉 Initial Release

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pycrypt-jasypt"
-version = "1.0.0"
+version = "1.0.1"
 description = "Jasypt-like encryption library for Python - Encrypt your configuration with ENC(...) pattern"
 readme = "README.md"
 license = {text = "MIT"}
