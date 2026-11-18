@@ -2,7 +2,8 @@
 Jasypt-compatible encryption module.
 
 This module provides compatibility with Java Jasypt library,
-allowing Python to decrypt values encrypted by Java and vice versa.
+allowing Python to decrypt values encrypted by Java and vice versa
+(JasyptEncryptor only; see JasyptStrongEncryptor).
 """
 
 import os
@@ -192,7 +193,10 @@ class JasyptStrongEncryptor:
     Jasypt-compatible encryptor using PBEWithHmacSHA256AndAES_256.
     
     This is a stronger algorithm compared to the default PBEWithMD5AndDES.
-    Use this when Java uses Jasypt's strong encryption.
+    Compatible with GoCrypt, NodeCrypt, RustCrypt and PHPCrypt, but NOT
+    with Java Jasypt: Java 1.9.3 writes salt + random IV + ciphertext,
+    while this class derives the IV from PBKDF2 and writes salt + ciphertext.
+    Use JasyptEncryptor when Java must read or write the value.
     
     Example:
         >>> enc = JasyptStrongEncryptor("myPassword")

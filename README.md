@@ -20,7 +20,7 @@ If you're coming from Java/Spring Boot world and need to share encrypted configu
 - ✅ **Multiple encryption algorithms** - From legacy Jasypt to modern AES-256-GCM
 - ✅ **Config file loaders** - Load .env, YAML, JSON with auto-decryption
 - ✅ **CLI tool included** - Encrypt/decrypt from command line
-- ✅ **Cross-platform** - Works with GoCrypt (Go), RustCrypt (Rust) and Java Jasypt
+- ✅ **Cross-platform** - Works with GoCrypt (Go), NodeCrypt (Node.js), RustCrypt (Rust), PHPCrypt (PHP) and Java Jasypt
 
 ---
 
@@ -74,8 +74,8 @@ print(config["DATABASE_PASSWORD"])  # actual_password
 | Encryptor | Algorithm | Security | Use Case |
 |-----------|-----------|----------|----------|
 | `Encryptor` | AES-256-GCM | ⭐⭐⭐⭐⭐ | **Recommended** for new projects |
-| `JasyptStrongEncryptor` | PBEWithHmacSHA256AndAES_256 | ⭐⭐⭐⭐ | Jasypt strong compatibility |
-| `JasyptEncryptor` | PBEWithMD5AndDES | ⭐⭐ | Legacy Jasypt compatibility |
+| `JasyptStrongEncryptor` | PBEWithHmacSHA256AndAES_256 | ⭐⭐⭐⭐ | Shared with the family only (Java Jasypt cannot read it) |
+| `JasyptEncryptor` | PBEWithMD5AndDES | ⭐⭐ | Legacy Jasypt compatibility (the only mode Java can read) |
 
 ### Choose the Right Algorithm
 
@@ -88,7 +88,8 @@ enc = Encryptor(password)
 # For compatibility with Java Jasypt (default algorithm)
 enc = JasyptEncryptor(password)
 
-# For compatibility with Java Jasypt (strong encryption)
+# Stronger, for sharing with GoCrypt/NodeCrypt/RustCrypt/PHPCrypt only
+# (Java Jasypt cannot read it)
 enc = JasyptStrongEncryptor(password)
 ```
 
@@ -103,7 +104,8 @@ enc = JasyptStrongEncryptor(password)
 │            ENCRYPT WITH → DECRYPT WITH                          │
 ├─────────────────────────────────────────────────────────────────┤
 │ Java Jasypt (default)  → JasyptEncryptor        ✅ YES          │
-│ Java Jasypt (strong)   → JasyptStrongEncryptor  ✅ YES          │
+│ Java Jasypt (strong)   → JasyptStrongEncryptor  ❌ NO           │
+│ Family --jasypt-strong → JasyptStrongEncryptor  ✅ YES          │
 │ Java Jasypt (default)  → Encryptor              ❌ NO           │
 │ Encryptor              → Java Jasypt            ❌ NO           │
 │ JasyptEncryptor        → Java Jasypt            ✅ YES          │
@@ -113,6 +115,10 @@ enc = JasyptStrongEncryptor(password)
 │ Encryptor              → Go/Node/Rust/PHP Enc.  ✅ YES (1.0.1+) │
 └─────────────────────────────────────────────────────────────────┘
 ```
+
+Java Jasypt 1.9.3 strong mode writes `salt ‖ random IV ‖ ciphertext`. The family derives the IV
+from PBKDF2 and writes `salt ‖ ciphertext`, so `JasyptStrongEncryptor` values cannot be read by Java,
+and Java strong values cannot be read by the family. Use `JasyptEncryptor` when Java is involved.
 
 ### Decrypt Values from Java
 
@@ -131,7 +137,8 @@ decrypted = enc.decrypt_prefixed("ENC(xxxFromJavaxxx)")  # ✅ Works!
 ```python
 from pycrypt import JasyptEncryptor
 
-# Use JasyptEncryptor so both Python and Go can read
+# Encryptor (default) is shared by Python, Go, Node.js, Rust and PHP.
+# Use JasyptEncryptor when Java must read the value too.
 enc = JasyptEncryptor(shared_password)
 encrypted = enc.encrypt_with_prefix("shared_secret")
 
@@ -227,6 +234,10 @@ pycrypt encrypt -p mySecret -v "secret" --jasypt
 export PYCRYPT_PASSWORD=mySecret
 pycrypt encrypt -v "secret_value"
 ```
+
+An `ENC(...)` value does not record which algorithm made it. Decrypt with the same flag
+(none, `--jasypt` or `--jasypt-strong`) that encrypted it, in every language. NodeCrypt on
+Node.js 17+ needs `NODE_OPTIONS=--openssl-legacy-provider` for `--jasypt`.
 
 ---
 

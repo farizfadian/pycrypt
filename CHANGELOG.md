@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Documentation
+- **Corrected: `JasyptStrongEncryptor` is not compatible with Java Jasypt.** Verified against Jasypt 1.9.3:
+  Java writes `salt ‖ random IV ‖ ciphertext`. This library, like the rest of the family, derives the IV from
+  PBKDF2 and writes `salt ‖ ciphertext`. It stays compatible within the family. Use `JasyptEncryptor` for Java.
+- README: corrected the compatibility matrix. Added a note that both sides must use the same mode, and that
+  NodeCrypt on Node.js 17+ needs `--openssl-legacy-provider` for `--jasypt`.
+
+---
+
 ## [1.0.1] - 2026-11-19
 
 ### Fixed
