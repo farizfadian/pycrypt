@@ -29,7 +29,19 @@ jobs:
       matrix:
         python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
         os: [ubuntu-latest, windows-latest, macos-latest]
-    
+        # actions/setup-python ships no 3.8/3.9 builds for Ubuntu 26.04
+        # (ubuntu-latest since late 2026); run those on 24.04 instead.
+        exclude:
+          - os: ubuntu-latest
+            python-version: '3.8'
+          - os: ubuntu-latest
+            python-version: '3.9'
+        include:
+          - os: ubuntu-24.04
+            python-version: '3.8'
+          - os: ubuntu-24.04
+            python-version: '3.9'
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
