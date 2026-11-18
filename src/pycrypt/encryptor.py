@@ -36,7 +36,14 @@ class Encryptor:
     DEFAULT_ITERATIONS = 10000
     DEFAULT_SALT_SIZE = 16
     DEFAULT_KEY_SIZE = 32  # 256 bits
-    
+
+    # GCM nonce size used by the whole family (Go's cipher.NewGCM, Node,
+    # Rust, PHP). pycryptodome defaults to 16 bytes, so pass it explicitly.
+    NONCE_SIZE = 12
+    # PyCrypt 1.0.0 wrote a 16-byte nonce; still accepted when decrypting.
+    LEGACY_NONCE_SIZE = 16
+    TAG_SIZE = 16
+
     def __init__(
         self,
         password: str,
@@ -89,22 +96,20 @@ class Encryptor:
         """
         if not plaintext:
             raise ValueError("Plaintext cannot be empty")
-        
-        # Generate random salt
+
         salt = os.urandom(self.salt_size)
-        
-        # Derive key
+        nonce = os.urandom(self.NONCE_SIZE)
+        return self._encrypt_with_salt_nonce(salt, nonce, plaintext)
+
+    def _encrypt_with_salt_nonce(self, salt: bytes, nonce: bytes, plaintext: str) -> str:
+        """Encrypt with a given salt and nonce (deterministic; used by tests)."""
         key = self._derive_key(salt)
-        
-        # Create AES-GCM cipher
-        cipher = AES.new(key, AES.MODE_GCM)
-        
-        # Encrypt
+        cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)
         ciphertext, tag = cipher.encrypt_and_digest(plaintext.encode('utf-8'))
-        
+
         # Combine: salt + nonce + ciphertext + tag
-        combined = salt + cipher.nonce + ciphertext + tag
-        
+        combined = salt + nonce + ciphertext + tag
+
         return base64.b64encode(combined).decode('utf-8')
     
     def encrypt_with_prefix(self, plaintext: str) -> str:
@@ -123,37 +128,50 @@ class Encryptor:
     def decrypt(self, encoded: str) -> str:
         """
         Decrypt base64-encoded ciphertext.
-        
+
+        Accepts the family format (12-byte nonce, as written by GoCrypt,
+        NodeCrypt, RustCrypt, PHPCrypt and PyCrypt >= 1.0.1) and, as a
+        fallback, the 16-byte-nonce format written by PyCrypt 1.0.0. The GCM
+        tag tells the two apart: the wrong layout fails authentication.
+
         Args:
             encoded: Base64-encoded ciphertext
-            
+
         Returns:
             Decrypted plaintext
-            
+
         Raises:
             ValueError: If decryption fails
         """
         if not encoded:
             raise ValueError("Encoded value cannot be empty")
-        
+
         try:
-            # Decode from base64
             combined = base64.b64decode(encoded)
-            
-            # Extract components
             salt = combined[:self.salt_size]
-            nonce = combined[self.salt_size:self.salt_size + 16]
-            tag = combined[-16:]
-            ciphertext = combined[self.salt_size + 16:-16]
-            
-            # Derive key
             key = self._derive_key(salt)
-            
-            # Create cipher and decrypt
-            cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)
-            plaintext = cipher.decrypt_and_verify(ciphertext, tag)
-            
-            return plaintext.decode('utf-8')
+
+            error = None
+            for nonce_size in (self.NONCE_SIZE, self.LEGACY_NONCE_SIZE):
+                body = combined[self.salt_size:]
+                if len(body) < nonce_size + self.TAG_SIZE:
+                    error = error or ValueError("ciphertext too short")
+                    continue
+
+                nonce = body[:nonce_size]
+                ciphertext = body[nonce_size:-self.TAG_SIZE]
+                tag = body[-self.TAG_SIZE:]
+
+                cipher = AES.new(key, AES.MODE_GCM, nonce=nonce)
+                try:
+                    plaintext = cipher.decrypt_and_verify(ciphertext, tag)
+                except ValueError as e:
+                    error = error or e
+                    continue
+
+                return plaintext.decode('utf-8')
+
+            raise error
         except Exception as e:
             raise ValueError(f"Decryption failed: {e}")
     

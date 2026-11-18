@@ -21,7 +21,7 @@ from .jasypt_compat import JasyptEncryptor, JasyptStrongEncryptor
 from .utils import is_encrypted
 
 
-__version__ = "1.0.0"
+__version__ = "1.0.1"
 
 
 def get_password(args_password: Optional[str]) -> str:

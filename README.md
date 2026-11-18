@@ -109,6 +109,8 @@ enc = JasyptStrongEncryptor(password)
 │ JasyptEncryptor        → Java Jasypt            ✅ YES          │
 │ GoCrypt JasyptEnc      → JasyptEncryptor        ✅ YES          │
 │ RustCrypt JasyptEnc    → JasyptEncryptor        ✅ YES          │
+│ Go/Node/Rust/PHP Enc.  → Encryptor              ✅ YES (1.0.1+) │
+│ Encryptor              → Go/Node/Rust/PHP Enc.  ✅ YES (1.0.1+) │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
